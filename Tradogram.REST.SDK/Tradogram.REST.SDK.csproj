@@ -1,0 +1,30 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+	<PackageTags>tradogram;requisitions;rest;sdk;</PackageTags>
+	<Title>Tradogram REST API SDK</Title>
+	<GenerateDocumentationFile>true</GenerateDocumentationFile>
+	<Authors>midnightmeshllc</Authors>
+	<GeneratePackageOnBuild>True</GeneratePackageOnBuild>
+	<Copyright>Copyright (c) MidnightMeshLLC 2025</Copyright>
+	<IncludeSymbols>False</IncludeSymbols>
+	<Description>A strongly-typed wrapper for Tradogram's REST API.</Description>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Flurl" Version="4.0.0" />
+    <PackageReference Include="Flurl.Http" Version="4.0.2" />
+    <PackageReference Include="Microsoft.Extensions.Configuration.Abstractions" Version="8.0.0" />
+    <PackageReference Include="Serilog" Version="4.3.1" />
+  </ItemGroup>
+	<Target Name="CopyCustomContent" AfterTargets="AfterBuild">
+		<ItemGroup>
+			<_CustomFiles Include="..\automation\*" />
+		</ItemGroup>
+		<Copy SourceFiles="@(_CustomFiles)" DestinationFolder="./../.git/hooks" />
+	</Target>
+
+</Project>
