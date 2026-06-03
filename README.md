@@ -94,3 +94,6 @@ If instead you wanted to use the default pagination and filtering options, simpl
 The SDK is currently aligned with Changelog #50 of the Tradogram API. This means that all methods and features exposed in the API as of that changelog are available in the SDK. 
 For any new features or changes in the API, the SDK will be updated accordingly, and users are encouraged to check the changelog for the latest updates.
 
+### 4. Upcoming Enhancements
+We will continue adding documentation that aligns with the Changelog and add remaining filtering capabilities.
+
