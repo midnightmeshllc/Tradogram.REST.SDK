@@ -1,7 +1,7 @@
 # Tradogram.REST.SDK
 
 ## Overview
-**tradogram.REST.SDK** is a .NET 8 library that uses `Flurl` to provide a strongly-typed interface for integrating with the Tradogram REST API. The current iteration of this library aligns with Changelog #50 of the tradogram API docs. 
+**Tradogram.REST.SDK** is a .NET 8 library that uses `Flurl` to provide a strongly-typed interface for integrating with the Tradogram REST API. The current iteration of this library aligns with Changelog #50 of the tradogram API docs. 
 
 ## Features
 
@@ -13,6 +13,7 @@
 - **Logging**:
 
 ## Disclaimer
+This package is still in development and testing. For any issues encountered, please file an Issue.
 
 ## Setup Instructions
 
@@ -67,4 +68,29 @@ using Tradogram.REST.SDK.Endpoints;
     var locationAPI = new LocationAPI(client, xapikey);
 ```
 
+### 2. Pagination and Filtering
+The GetAll endpoints support pagination and filtering. The SDK provides methods to handle these features seamlessly.
+```csharp
+    var supplierList = await supplierAPI.GetAllSuppliers(
+        new PaginateResultsRequest
+        {
+            Paginate = true,
+            PageSize = 100,
+            Page = 1
+        }, 
+        new SupplierFilter 
+        { 
+            IsEnabled = true, 
+            Status = "Pending Approval, Active"
+        });
+```
+
+If instead you wanted to use the default pagination and filtering options, simply pass new default classes for each parameter:
+```csharp
+    var supplierList = await supplierAPI.GetAllSuppliers(new PaginateResultsRequest(), new SupplierFilter());
+```
+
+### 3. Alignment with Tradogram API Changelog
+The SDK is currently aligned with Changelog #50 of the Tradogram API. This means that all methods and features exposed in the API as of that changelog are available in the SDK. 
+For any new features or changes in the API, the SDK will be updated accordingly, and users are encouraged to check the changelog for the latest updates.
 
