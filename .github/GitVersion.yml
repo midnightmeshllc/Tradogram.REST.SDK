@@ -1,0 +1,3 @@
+major-version-bump-message: "^(breaking|major)(\\([\\w\\s-,/\\\\]*\\))?(!:|:.*\\n\\n((.+\\n)+\\n)?BREAKING CHANGE:\\s.+)"
+minor-version-bump-message: "^(feat|minor)(\\([\\w\\s-,/\\\\]*\\))?:"
+patch-version-bump-message: "^(fix|refactor)(\\([\\w\\s-,/\\\\]*\\))?:"
