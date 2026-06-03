@@ -1,9 +1,9 @@
-﻿using Tradogram.REST.SDK.DTO.Common;
-using Tradogram.REST.SDK.DTO.Request;
-using Tradogram.REST.SDK.DTO.Response;
-using Flurl;
+﻿using Flurl;
 using Flurl.Http;
 using Serilog;
+using Tradogram.REST.SDK.DTO.Common;
+using Tradogram.REST.SDK.DTO.Request;
+using Tradogram.REST.SDK.DTO.Response;
 
 namespace Tradogram.REST.SDK.Endpoints
 {
@@ -11,7 +11,7 @@ namespace Tradogram.REST.SDK.Endpoints
     {
         private readonly string _endpoint = "requisitions";
 
-        public async Task<GetRequisitionResponse> GetAllRequisitions(PaginateResultsRequest paginateRequest)
+        public async Task<GetRequisitionResponse> GetAllRequisitions(PaginateResultsRequest paginateRequest, RequisitionFilter? filter)
         {
 
             Log.Information($"GET {client.BaseUrl}/{_endpoint}");
@@ -20,13 +20,66 @@ namespace Tradogram.REST.SDK.Endpoints
 
             try
             {
-                response = await $"{client.BaseUrl}"
+                var request = $"{client.BaseUrl}"
                     .AppendPathSegment(_endpoint)
-                    .AppendQueryParam("paginate", paginateRequest?.Paginate ?? false)
-                    .AppendQueryParam("pageSize", paginateRequest?.PageSize ?? 100)
-                    .AppendQueryParam("page", paginateRequest?.Page ?? 1)
                     .WithHeader("x-api-key", xapikey)
-                    .WithHeader("Content-Type", "application/json")
+                    .WithHeader("Content-Type", "application/json");
+
+                // Pagination: add only when requested
+                if (paginateRequest != null && paginateRequest.Paginate)
+                {
+                    request
+                        .AppendQueryParam("paginate", paginateRequest.Paginate)
+                        .AppendQueryParam("pageSize", paginateRequest.PageSize)
+                        .AppendQueryParam("page", paginateRequest.Page);
+                }
+
+                if (filter != null && filter.IsEnabled)
+                {
+                    if (!string.IsNullOrWhiteSpace(filter.Status))
+                    {
+                        request.AppendQueryParam("status", filter.Status);
+                    }
+
+                    if (!string.IsNullOrWhiteSpace(filter.FetchType.ToString()))
+                    {
+                        request.AppendQueryParam("fetchType", filter.FetchType);
+                    }
+
+                    if (filter.UpdateFetchFlag)
+                    {
+                        request.AppendQueryParam("updateFetchFlag", filter.UpdateFetchFlag);
+                    }
+
+                    if (!string.IsNullOrWhiteSpace(filter.BuyerBranchName))
+                    {
+                        request.AppendQueryParam("buyerBranchName", filter.BuyerBranchName);
+                    }
+
+                    // For date/time or nullable value types, check for HasValue / not null
+                    if (filter.CreatedDateStart != null)
+                    {
+                        request.AppendQueryParam("createdDateStart", filter.CreatedDateStart);
+                    }
+
+                    if (filter.CreatedDateEnd != null)
+                    {
+                        request.AppendQueryParam("createdDateEnd", filter.CreatedDateEnd);
+                    }
+
+                    if (filter.ModifiedDateStart != null)
+                    {
+                        request.AppendQueryParam("modifiedDateStart", filter.ModifiedDateStart);
+                    }
+
+                    if (filter.ModifiedDateEnd != null)
+                    {
+                        request.AppendQueryParam("modifiedDateEnd", filter.ModifiedDateEnd);
+                    }
+                }
+
+
+                response = await request
                     .GetAsync()
                     .ReceiveJson<GetRequisitionResponse>();
 
@@ -87,9 +140,9 @@ namespace Tradogram.REST.SDK.Endpoints
                 return response; // Return empty response if requisition code is invalid
             }
 
-            if (requisitionCode.Length > 50)
+            if (requisitionCode.Length > 12 || requisitionCode.Length < 12)
             {
-                Log.Warning("Requisition code is exceeds maximum length of 12 characters");
+                Log.Warning("Requisition code must be 12 characters");
                 return response; // Return empty response if requisition code is too long
             }
 
@@ -155,9 +208,9 @@ namespace Tradogram.REST.SDK.Endpoints
                 return response; // Return empty response if requisition code is invalid
             }
 
-            if (requisitionCode.Length > 50)
+            if (requisitionCode.Length > 12 || requisitionCode.Length < 12)
             {
-                Log.Warning("Requisition code is exceeds maximum length of 12 characters");
+                Log.Warning("Requisition code must be 12 characters");
                 return response; // Return empty response if requisition code is too long
             }
 
@@ -226,9 +279,9 @@ namespace Tradogram.REST.SDK.Endpoints
                 return response; // Return empty response if requisition code is invalid
             }
 
-            if (requisitionCode.Length > 12)
+            if (requisitionCode.Length > 12 || requisitionCode.Length < 12)
             {
-                Log.Warning("Requisition code is exceeds maximum length of 12 characters");
+                Log.Warning("Requisition code must be 12 characters");
                 return response; // Return empty response if requisition code is too long
             }
 

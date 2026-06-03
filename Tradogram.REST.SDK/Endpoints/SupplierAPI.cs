@@ -12,7 +12,7 @@ namespace Tradogram.REST.SDK.Endpoints
         private readonly string _endpoint = "suppliers";
 
 
-        public async Task<GetSupplierResponse> GetAllSuppliers(PaginateResultsRequest paginateRequest)
+        public async Task<GetSupplierResponse> GetAllSuppliers(PaginateResultsRequest paginateRequest, SupplierFilter filter)
         {
             Log.Information($"GET {client.BaseUrl}/{_endpoint}");
 
@@ -20,13 +20,58 @@ namespace Tradogram.REST.SDK.Endpoints
 
             try
             {
-                response = await $"{client.BaseUrl}"
+                var request = $"{client.BaseUrl}"
                     .AppendPathSegment(_endpoint)
-                    .AppendQueryParam("paginate", paginateRequest?.Paginate ?? false)
-                    .AppendQueryParam("pageSize", paginateRequest?.PageSize ?? 100)
-                    .AppendQueryParam("page", paginateRequest?.Page ?? 1)
                     .WithHeader("x-api-key", xapikey)
-                    .WithHeader("Content-Type", "application/json")
+                    .WithHeader("Content-Type", "application/json");
+
+                // Pagination: add only when requested
+                if (paginateRequest != null && paginateRequest.Paginate)
+                {
+                    request
+                        .AppendQueryParam("paginate", paginateRequest.Paginate)
+                        .AppendQueryParam("pageSize", paginateRequest.PageSize)
+                        .AppendQueryParam("page", paginateRequest.Page);
+                }
+
+                // Filters: add only non-null / non-empty values
+                if (filter != null && filter.IsEnabled)
+                {
+                    // Assuming `status` and `branchName` are strings
+                    if (!string.IsNullOrWhiteSpace(filter.Status))
+                    {
+                        request.AppendQueryParam("status", filter.Status);
+                    }
+
+                    if (!string.IsNullOrWhiteSpace(filter.BranchName))
+                    {
+                        request.AppendQueryParam("branchName", filter.BranchName);
+                    }
+
+                    // For date/time or nullable value types, check for HasValue / not null
+                    if (filter.CreatedDateStart != null)
+                    {
+                        request.AppendQueryParam("createdDateStart", filter.CreatedDateStart);
+                    }
+
+                    if (filter.CreatedDateEnd != null)
+                    {
+                        request.AppendQueryParam("createdDateEnd", filter.CreatedDateEnd);
+                    }
+
+                    if (filter.ModifiedDateStart != null)
+                    {
+                        request.AppendQueryParam("modifiedDateStart", filter.ModifiedDateStart);
+                    }
+
+                    if (filter.ModifiedDateEnd != null)
+                    {
+                        request.AppendQueryParam("modifiedDateEnd", filter.ModifiedDateEnd);
+                    }
+
+                }
+
+                response = await request
                     .GetAsync()
                     .ReceiveJson<GetSupplierResponse>();
 
@@ -80,9 +125,9 @@ namespace Tradogram.REST.SDK.Endpoints
                 return response; // Return empty response if supplier code is invalid
             }
 
-            if (supplierCode.Length > 12)
+            if (supplierCode.Length > 12 || supplierCode.Length < 12)
             {
-                Log.Warning("Supplier code exceeds maximum length of 12 characters");
+                Log.Warning("Supplier code must be 12 characters");
                 return response; // Return empty response if supplier code is too long
             }
 
@@ -146,9 +191,9 @@ namespace Tradogram.REST.SDK.Endpoints
                 return response; // Return empty response if supplier code is invalid
             }
 
-            if (supplierCode.Length > 12)
+            if (supplierCode.Length > 12 || supplierCode.Length < 12)
             {
-                Log.Warning("Supplier code exceeds maximum length of 12 characters");
+                Log.Warning("Supplier code must be 12 characters");
                 return response; // Return empty response if supplier code is too long
             }
 

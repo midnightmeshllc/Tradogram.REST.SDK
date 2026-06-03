@@ -12,20 +12,46 @@ namespace Tradogram.REST.SDK.Endpoints
     {
         private readonly string _endpoint = "items";
 
-        public async Task<GetItemResponse> GetAllItems(PaginateResultsRequest paginateRequest)
+        public async Task<GetItemResponse> GetAllItems(PaginateResultsRequest paginateRequest, ItemFilter? filter)
         {
             Log.Information($"GET {client.BaseUrl}/{_endpoint}");
             var response = new GetItemResponse();
 
             try
             {
-                response = await $"{client.BaseUrl}"
+                var request = $"{client.BaseUrl}"
                     .AppendPathSegment(_endpoint)
-                    .AppendQueryParam("paginate", paginateRequest?.Paginate ?? false)
-                    .AppendQueryParam("pageSize", paginateRequest?.PageSize ?? 100)
-                    .AppendQueryParam("page", paginateRequest?.Page ?? 1)
                     .WithHeader("x-api-key", xapikey)
-                    .WithHeader("Content-Type", "application/json")
+                    .WithHeader("Content-Type", "application/json");
+
+                // Pagination: add only when requested
+                if (paginateRequest != null && paginateRequest.Paginate)
+                {
+                    request
+                        .AppendQueryParam("paginate", paginateRequest.Paginate)
+                        .AppendQueryParam("pageSize", paginateRequest.PageSize)
+                        .AppendQueryParam("page", paginateRequest.Page);
+                }
+
+                if (filter!= null && filter.IsEnabled)
+                {
+                    if (!string.IsNullOrEmpty(filter.BranchName))
+                    {
+                        request.AppendQueryParam("branchName", filter.BranchName);
+                    }
+
+                    if (filter.IsActive.HasValue)
+                    {
+                        request.AppendQueryParam("isActive", filter.IsActive.Value);
+                    }
+
+                    if (filter.IsCompanyWide.HasValue)
+                    {
+                        request.AppendQueryParam("isCompanyWide", filter.IsCompanyWide.Value);
+                    }
+                }
+
+                response = await request
                     .GetAsync()
                     .ReceiveJson<GetItemResponse>();
 
@@ -77,9 +103,9 @@ namespace Tradogram.REST.SDK.Endpoints
                 return response; // Return empty response if item code is invalid
             }
 
-            if (itemCode.Length > 12)
+            if (itemCode.Length > 12 || itemCode.Length < 12)
             {
-                Log.Warning("Item code exceeds maximum length of 12 characters");
+                Log.Warning("Item code must be 12 characters");
                 return response; // Return empty response if item code is too long
             }
 
