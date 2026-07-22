@@ -6,16 +6,13 @@
 ## Features
 
 - **Full API Wrapper**: All methods currently exposed as of the Changelog noted above in Overview, are available for use. 
-- **Strongly-typed Requests**:
-- **Stringly-typed Responses**:
-- **Custom Field Support**:
-- **Testing**:
-- **Logging**:
+- **Strongly-typed Requests**: Uses strongly-typed request objects to ensure type safety and reduce runtime errors.
+- **Stringly-typed Responses**: Converts JSON response bodies from the REST API into traversable C# objects.
+- **Custom Field Support**: In all areas where CustomFields are returned or allowed to be input, those are exposed, though require string formatting for all values input and will only return strings for values. 
+- **Logging**: Integrated logging for diagnostics and debugging using Serilog 4.3.0+.
 
 ## Disclaimer
 This package is still in development and testing. For any issues encountered, please file an Issue.
-
-## Setup Instructions
 
 ### Prerequisites
 - Tradogram API access (developer token)
