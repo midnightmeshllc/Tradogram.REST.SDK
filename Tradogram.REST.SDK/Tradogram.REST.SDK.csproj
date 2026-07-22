@@ -13,8 +13,24 @@
 	<Copyright>Copyright (c) MidnightMeshLLC 2025</Copyright>
 	<IncludeSymbols>False</IncludeSymbols>
 	<Description>A strongly-typed wrapper for Tradogram's REST API.</Description>
+	<PackageLicenseFile>LICENSE.txt</PackageLicenseFile>
+	<PackageIcon>midnightmesh-logo.png</PackageIcon>
+	<PackageReadmeFile>README.md</PackageReadmeFile>
   </PropertyGroup>
-
+	<ItemGroup>
+		<None Include="..\LICENSE.txt">
+			<Pack>True</Pack>
+			<PackagePath>\</PackagePath>
+		</None>
+		<None Include="..\Public\midnightmesh-logo.png" Link="midnightmesh-logo.png">
+			<Pack>True</Pack>
+			<PackagePath>\</PackagePath>
+		</None>
+		<None Include="..\README.md">
+			<Pack>True</Pack>
+			<PackagePath>\</PackagePath>
+		</None>
+	</ItemGroup>
   <ItemGroup>
     <PackageReference Include="Flurl" Version="4.0.0" />
     <PackageReference Include="Flurl.Http" Version="4.0.2" />

@@ -3,6 +3,7 @@ using Serilog;
 using Flurl;
 using Tradogram.REST.SDK.DTO.Response;
 using Tradogram.REST.SDK.DTO.Request;
+using Tradogram.REST.SDK.DTO.Common;
 
 namespace Tradogram.REST.SDK.Endpoints
 {
@@ -10,17 +11,59 @@ namespace Tradogram.REST.SDK.Endpoints
     {
         private readonly string _endpoint = "projects";
 
-        public async Task<GetProjectResponse> GetAllProjects()
+        public async Task<GetProjectResponse> GetAllProjects(PaginateResultsRequest paginateRequest, ProjectFilter filter)
         {
             Log.Information($"GET {client.BaseUrl}/{_endpoint}");
             var response = new GetProjectResponse();
 
             try
             {
-                response = await $"{client.BaseUrl}"
+                var request = $"{client.BaseUrl}"
                     .AppendPathSegment(_endpoint)
                     .WithHeader("x-api-key", xapikey)
-                    .WithHeader("Content-Type", "application/json")
+                    .WithHeader("Content-Type", "application/json");
+
+                // Pagination: add only when requested
+                if (paginateRequest != null && paginateRequest.Paginate)
+                {
+                    request
+                        .AppendQueryParam("paginate", paginateRequest.Paginate)
+                        .AppendQueryParam("pageSize", paginateRequest.PageSize)
+                        .AppendQueryParam("page", paginateRequest.Page);
+                }
+
+                // Filters: add only non-null / non-empty values
+                if (filter != null && filter.IsEnabled)
+                {
+                    if (filter.IsActive != null || filter.IsActive)
+                    {
+                        request.AppendQueryParam("isActive", filter.IsActive);
+                    }
+
+                    // For date/time or nullable value types, check for HasValue / not null
+                    if (filter.CreatedDateStart != null)
+                    {
+                        request.AppendQueryParam("createdDateStart", filter.CreatedDateStart);
+                    }
+
+                    if (filter.CreatedDateEnd != null)
+                    {
+                        request.AppendQueryParam("createdDateEnd", filter.CreatedDateEnd);
+                    }
+
+                    if (filter.ModifiedDateStart != null)
+                    {
+                        request.AppendQueryParam("modifiedDateStart", filter.ModifiedDateStart);
+                    }
+
+                    if (filter.ModifiedDateEnd != null)
+                    {
+                        request.AppendQueryParam("modifiedDateEnd", filter.ModifiedDateEnd);
+                    }
+
+                }
+
+                response = await request
                     .GetAsync()
                     .ReceiveJson<GetProjectResponse>();
 
