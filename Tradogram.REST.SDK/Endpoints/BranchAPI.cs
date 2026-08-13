@@ -2,6 +2,8 @@
 using Flurl;
 using Flurl.Http;
 using Serilog;
+using Tradogram.REST.SDK.DTO.Request;
+using Tradogram.REST.SDK.DTO.Common;
 
 namespace Tradogram.REST.SDK.Endpoints
 {
@@ -9,7 +11,7 @@ namespace Tradogram.REST.SDK.Endpoints
     {
         private readonly string _endpoint = "branches";
 
-        public async Task<GetBranchResponse> GetAllBranches()
+        public async Task<GetBranchResponse> GetAllBranches(PaginateResultsRequest paginateRequest, BranchFilter filter)
         {
             Log.Information($"GET {client.BaseUrl}/{_endpoint}");
             Log.Information("Getting all branches");
@@ -18,10 +20,51 @@ namespace Tradogram.REST.SDK.Endpoints
 
             try
             {
-                response = await $"{client.BaseUrl}"
+                var request = $"{client.BaseUrl}"
                     .AppendPathSegment(_endpoint)
                     .WithHeader("x-api-key", xapikey)
-                    .WithHeader("Content-Type", "application/json")
+                    .WithHeader("Content-Type", "application/json");
+
+                if (paginateRequest.Paginate)
+                {
+                    request
+                        .AppendQueryParam("paginate", paginateRequest?.Paginate ?? false)
+                        .AppendQueryParam("pageSize", paginateRequest?.PageSize ?? 100)
+                        .AppendQueryParam("page", paginateRequest?.Page ?? 1);
+                }
+
+                if (filter != null && filter.IsEnabled)
+                {
+
+                    if (!string.IsNullOrWhiteSpace(filter.BranchName))
+                    {
+                        request.AppendQueryParam("branchName", filter.BranchName);
+                    }
+
+                    // For date/time or nullable value types, check for HasValue / not null
+                    if (filter.CreatedDateStart != null)
+                    {
+                        request.AppendQueryParam("createdDateStart", filter.CreatedDateStart);
+                    }
+
+                    if (filter.CreatedDateEnd != null)
+                    {
+                        request.AppendQueryParam("createdDateEnd", filter.CreatedDateEnd);
+                    }
+
+                    if (filter.ModifiedDateStart != null)
+                    {
+                        request.AppendQueryParam("modifiedDateStart", filter.ModifiedDateStart);
+                    }
+
+                    if (filter.ModifiedDateEnd != null)
+                    {
+                        request.AppendQueryParam("modifiedDateEnd", filter.ModifiedDateEnd);
+                    }
+                }
+
+
+                response = await request
                     .GetAsync()
                     .ReceiveJson<GetBranchResponse>();
 

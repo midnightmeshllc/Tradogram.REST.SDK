@@ -3,6 +3,7 @@ using Flurl;
 using Flurl.Http;
 using Tradogram.REST.SDK.DTO.Response;
 using Tradogram.REST.SDK.DTO.Request;
+using Tradogram.REST.SDK.DTO.Common;
 
 namespace Tradogram.REST.SDK.Endpoints
 {
@@ -10,7 +11,7 @@ namespace Tradogram.REST.SDK.Endpoints
     {
         private readonly string _endpoint = "categories";
 
-        public async Task<GetCategoryResponse> GetAllCategories(PaginateResultsRequest? paginateRequest)
+        public async Task<GetCategoryResponse> GetAllCategories(PaginateResultsRequest? paginateRequest, CategoryFilter filter)
         {
             Log.Information($"GET {client.BaseUrl}/{_endpoint}");
             Log.Information("Getting all categories");
@@ -18,13 +19,26 @@ namespace Tradogram.REST.SDK.Endpoints
 
             try
             {
-                response = await $"{client.BaseUrl}"
+                var request = $"{client.BaseUrl}"
                     .AppendPathSegment(_endpoint)
-                    .AppendQueryParam("paginate", paginateRequest?.Paginate ?? false)
-                    .AppendQueryParam("pageSize", paginateRequest?.PageSize ?? 100)
-                    .AppendQueryParam("page", paginateRequest?.Page ?? 1)
                     .WithHeader("x-api-key", xapikey)
-                    .WithHeader("Content-Type", "application/json")
+                    .WithHeader("Content-Type", "application/json");
+
+                if (paginateRequest.Paginate)
+                {
+                    request
+                        .AppendQueryParam("paginate", paginateRequest?.Paginate ?? false)
+                        .AppendQueryParam("pageSize", paginateRequest?.PageSize ?? 100)
+                        .AppendQueryParam("page", paginateRequest?.Page ?? 1);
+                }
+
+                if (filter != null && filter.IsEnabled)
+                {
+                    request.AppendQueryParam("isEnabled", filter.IsEnabled);
+                }
+
+
+                response = await request
                     .GetAsync()
                     .ReceiveJson<GetCategoryResponse>();
 

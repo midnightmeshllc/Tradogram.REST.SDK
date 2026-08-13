@@ -2,6 +2,8 @@
 using Flurl;
 using Flurl.Http;
 using Tradogram.REST.SDK.DTO.Response;
+using Tradogram.REST.SDK.DTO.Request;
+using Tradogram.REST.SDK.DTO.Common;
 
 namespace Tradogram.REST.SDK.Endpoints
 {
@@ -9,7 +11,7 @@ namespace Tradogram.REST.SDK.Endpoints
     {
         private readonly string _endpoint = "taxes";
 
-        public async Task<GetTaxResponse> GetAllTaxes()
+        public async Task<GetTaxResponse> GetAllTaxes(PaginateResultsRequest paginateRequest, TaxFilter filter)
         {
             Log.Information("Getting all taxes");
 
@@ -17,10 +19,29 @@ namespace Tradogram.REST.SDK.Endpoints
 
             try
             {
-                response = await $"{client.BaseUrl}"
+
+                var request = $"{client.BaseUrl}"
                     .AppendPathSegment(_endpoint)
                     .WithHeader("x-api-key", xapikey)
-                    .WithHeader("Content-Type", "application/json")
+                    .WithHeader("Content-Type", "application/json");
+
+                if (paginateRequest.Paginate)
+                {
+                    request
+                        .AppendQueryParam("paginate", paginateRequest?.Paginate ?? false)
+                        .AppendQueryParam("pageSize", paginateRequest?.PageSize ?? 100)
+                        .AppendQueryParam("page", paginateRequest?.Page ?? 1);
+                }
+
+                if (filter != null && filter.IsEnabled)
+                {
+                    if (!string.IsNullOrWhiteSpace(filter.TaxType))
+                    {
+                        request.AppendQueryParam("taxType", filter.TaxType);
+                    }
+                }
+
+                response = await request
                     .GetAsync()
                     .ReceiveJson<GetTaxResponse>();
 
