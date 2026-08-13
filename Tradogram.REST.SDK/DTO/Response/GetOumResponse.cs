@@ -1,6 +1,6 @@
 ﻿namespace Tradogram.REST.SDK.DTO.Response
 {
-    public class getOumResponse
+    public class GetUomResponse
     {
         public List<Unit> Units { get; set; } = new List<Unit>();
     }

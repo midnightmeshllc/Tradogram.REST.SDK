@@ -1,7 +1,7 @@
 # Tradogram.REST.SDK
 
 ## Overview
-**Tradogram.REST.SDK** is a .NET 8 library that uses `Flurl` to provide a strongly-typed interface for integrating with the Tradogram REST API. The current iteration of this library aligns with Changelog #50 of the tradogram API docs. 
+**Tradogram.REST.SDK** is a .NET 8 library that uses `Flurl` to provide a strongly-typed interface for integrating with the Tradogram REST API. The current iteration of this library aligns with Changelog #50 of the [Tradogram API docs](https://cdn.prod.website-files.com/622af601345345d5eca9ca51/691e167b53a4cacfc62bc7d4_783ef185377b9a6a691075480c33dafd_Tradogram-API-Doc-V1.0.4-2025-03-04.pdf). 
 
 ## Features
 
@@ -92,5 +92,5 @@ The SDK is currently aligned with Changelog #50 of the Tradogram API. This means
 For any new features or changes in the API, the SDK will be updated accordingly, and users are encouraged to check the changelog for the latest updates.
 
 ### 4. Upcoming Enhancements
-We will continue adding documentation that aligns with the Changelog and add remaining filtering capabilities.
+We will continue adding features that align with the changelogs as released. Now all pagination and filtering is available.
 
